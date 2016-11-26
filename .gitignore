@@ -1,3 +1,4 @@
 *.gif
 bin/
 obj/
+.DS_Store
