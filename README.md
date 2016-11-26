@@ -16,3 +16,6 @@ Back to Wikipedia...
 
 https://en.wikipedia.org/wiki/Delaunay_triangulation
 
+## Is this implementation robust?
+Not yet! Here's an example of a failure case:
+![Pretty Gif](/images/nonrobust.gif?raw=true "Brokenness")

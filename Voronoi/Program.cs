@@ -974,10 +974,18 @@ namespace Voronoi
 //                new Vector2(180 * scale, 160 * scale)
 //            };
 
-            var random = new Random(1);
-            points = new HashSet<Vector2>(
-                Enumerable.Range(0, 30)
-                    .Select(i => new TVector2((TNumber) random.NextDouble() * 400, (TNumber) random.NextDouble() * 400))
+//            var random = new Random(1);
+//            points = new HashSet<Vector2>(
+//                Enumerable.Range(0, 30)
+//                    .Select(i => new TVector2((TNumber) random.NextDouble() * 400, (TNumber) random.NextDouble() * 400))
+//            );
+
+            points = new HashSet<TVector2>(
+                from i in Enumerable.Range(0, 4)
+                from j in Enumerable.Range(0, 4)
+                let shift = i % 2 == 0 ? 25 : 0
+                let spacing = 50
+                select new TVector2(j * spacing + shift, i * spacing)
             );
 
             var renderer = FortunesAlgorithmRenderer.Create(points);
@@ -1020,7 +1028,7 @@ namespace Voronoi
                 }
             }
             while (sweepY < renderer.BoardSize.Height + renderer.Padding.Bottom)
-                display.AddFrame(renderer.Render(state, sweepY++));
+                frames.Add(renderer.Render(state, sweepY++));
 
             fortunesAlgorithmExecutor.ProcessCleanup(state);
             frames.Add(renderer.Render(state));
