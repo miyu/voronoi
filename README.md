@@ -1,6 +1,6 @@
 # Voronoi
 An implementation of Fortune's Line Sweep algorithm for Voronoi Diagram and Delaunay Triangulation generation.
-![Pretty Gif](/result.gif?raw=true "Fortune's Algorithm")
+![Pretty Gif](/images/result.gif?raw=true "Fortune's Algorithm")
 
 ## What's a Voronoi Diagram?
 Wikipedia puts it best.
