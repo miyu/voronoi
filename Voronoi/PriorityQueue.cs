@@ -17,6 +17,8 @@ namespace Voronoi
             _comparer = comparer;
         }
 
+        public int Count => _size;
+
         public PriorityQueue<TItem> Copy()
         {
             var copy = new PriorityQueue<TItem>(_comparer);
@@ -116,5 +118,15 @@ namespace Voronoi
             }
             return true;
         }
+
+        public TItem Dequeue()
+        {
+            TItem result;
+            if (!TryDequeue(out result))
+                throw new InvalidOperationException();
+            return result;
+        }
+
+        public bool Any() => _size != 0;
     }
 }

@@ -3,7 +3,8 @@
   "buildOptions": {
     "emitEntryPoint": true
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "frameworks": {
     "net461": {
       "dependencies": {
