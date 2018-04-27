@@ -676,7 +676,14 @@ namespace Voronoi
                             var parabolaData = (ParabolaData) parabolaNode.Data;
                             var parabolaPoint = MathUtil.ComputeParabolaPointGivenX(
                                 siteEvent.Point.X, sweepY.Value, parabolaData.Focus);
-                            g.DrawLine(Pens.Black, parabolaPoint.X, parabolaPoint.Y, siteEvent.Point.X, siteEvent.Point.Y);
+                            if (!float.IsInfinity(parabolaPoint.Y))
+                            {
+                                g.DrawLine(Pens.Black,
+                                    parabolaPoint.X,
+                                    parabolaPoint.Y,
+                                    siteEvent.Point.X,
+                                    siteEvent.Point.Y);
+                            }
                         }
                     }
                     eventCounter++;
@@ -786,7 +793,7 @@ namespace Voronoi
             minY = 0;
 
             return new FortunesAlgorithmRenderer(
-                new Padding(200, 100, 200, 100),
+                new Padding(100, 100, 100, 100),
                 new Size((int) Math.Ceiling(maxX - minX), (int) Math.Ceiling(maxY - minY)),
                 SystemFonts.DefaultFont);
         }
@@ -974,19 +981,23 @@ namespace Voronoi
 //                new Vector2(180 * scale, 160 * scale)
 //            };
 
-//            var random = new Random(1);
-//            points = new HashSet<Vector2>(
-//                Enumerable.Range(0, 30)
-//                    .Select(i => new TVector2((TNumber) random.NextDouble() * 400, (TNumber) random.NextDouble() * 400))
-//            );
-
-            points = new HashSet<TVector2>(
-                from i in Enumerable.Range(0, 4)
-                from j in Enumerable.Range(0, 4)
-                let shift = i % 2 == 0 ? 25 : 0
-                let spacing = 50
-                select new TVector2(j * spacing + shift, i * spacing)
+            var random = new Random(1);
+            points = new HashSet<Vector2>(
+                Enumerable.Range(0, 300)
+                    .Select(i => {
+                             var y = (TNumber)random.NextDouble() * 1200;
+                             var x = (TNumber)random.NextDouble() * 500 + y / 2;
+                             return new TVector2(x, y);
+                          })
             );
+
+//            points = new HashSet<TVector2>(
+//                from i in Enumerable.Range(0, 4)
+//                from j in Enumerable.Range(0, 4)
+//                let shift = i % 2 == 0 ? 25 : 0
+//                let spacing = 50
+//                select new TVector2(j * spacing + shift, i * spacing)
+//            );
 
             var renderer = FortunesAlgorithmRenderer.Create(points);
             var display = ImageDisplay.CreateAndRunInBackground(renderer.ImageSize);
@@ -1004,31 +1015,41 @@ namespace Voronoi
 
             TNumber sweepY = -renderer.Padding.Top;
             ISweepEvent sweepEvent;
+           var frame = 0;
             while (state.EventQueue.TryPeek(out sweepEvent))
             {
-                while (sweepY < sweepEvent.Y)
-                {
-                    TNumber stepSize = 1;
-                    var bottomY = renderer.BoardSize.Height + renderer.Padding.Bottom;
-                    if (sweepY > bottomY)
-                    {
-                        var speed = (TNumber)Math.Pow(sweepY - bottomY, 1.01);
-                        stepSize = Math.Max(speed, stepSize);
-                    }
-                    frames.Add(renderer.Render(state, sweepY));
-                    sweepY += stepSize;
-                }
+//                while (sweepY < sweepEvent.Y)
+//                {
+//                    TNumber stepSize = 1;
+//                    var bottomY = renderer.BoardSize.Height + renderer.Padding.Bottom;
+//                    if (sweepY > bottomY)
+//                    {
+//                        var speed = (TNumber)Math.Pow(sweepY - bottomY, 1.01);
+//                        stepSize = Math.Max(speed, stepSize);
+//                    }
+//                    frames.Add(renderer.Render(state, sweepY));
+//                    sweepY += stepSize;
+//                }
 
                 fortunesAlgorithmExecutor.ExecuteNextEvent(state);
+               frame++;
+            if (frame % 10 == 0)
                 frames.Add(renderer.Render(state, sweepEvent.Y + 0.1f));
+               if (frames.Count == 115) {
+                  var old = renderer.ImageSize;
+               var padding = renderer.Padding = new Padding(3200, 3200, 3200, 3200);
+               renderer.ImageSize = new Size(renderer.BoardSize.Width + padding.Horizontal, renderer.BoardSize.Height + padding.Vertical);
+               renderer.Render(state, sweepEvent.Y + 0.1f).Save(@"V:\my-repositories\miyu\voronoi\image.png", ImageFormat.Png);
+               Environment.Exit(0);
+               }
 
                 if (state.EventQueue.Count <= 5)
                 {
                     fortunesAlgorithmExecutor.ExecuteToCompletion(state);
                 }
             }
-            while (sweepY < renderer.BoardSize.Height + renderer.Padding.Bottom)
-                frames.Add(renderer.Render(state, sweepY++));
+//            while (sweepY < renderer.BoardSize.Height + renderer.Padding.Bottom)
+//                frames.Add(renderer.Render(state, sweepY++));
 
             fortunesAlgorithmExecutor.ProcessCleanup(state);
             frames.Add(renderer.Render(state));
@@ -1036,22 +1057,22 @@ namespace Voronoi
             if (!Directory.Exists("output"))
                 Directory.CreateDirectory("output");
 
-            int frame = 0;
-            for (int i = 0; i < 10; i++)
-                frames.Last().Save($"output/{frame++}.gif", ImageFormat.Gif);
-            for (int i = frames.Count - 1; i >= 0; i -= 14)
-                frames[i].Save($"output/{frame++}.gif", ImageFormat.Gif);
-            for (int i = 0; i < frames.Count; i += 3)
-                frames[i].Save($"output/{frame++}.gif", ImageFormat.Gif);
+//            int frame = 0;
+//            for (int i = 0; i < 10; i++)
+//                frames.Last().Save($"output/{frame++}.gif", ImageFormat.Gif);
+//            for (int i = frames.Count - 1; i >= 0; i -= 14)
+//                frames[i].Save($"output/{frame++}.gif", ImageFormat.Gif);
+//            for (int i = 0; i < frames.Count; i += 3)
+//                frames[i].Save($"output/{frame++}.gif", ImageFormat.Gif);
 
 //            using (var outputGifStream = File.OpenWrite("output.gif"))
 //            using (var gifEncoder = new GifEncoder(
 //                    outputGifStream, renderer.ImageSize.Width, renderer.ImageSize.Height))
 //            {
 //                gifEncoder.AddFrame(frames.Last(), TimeSpan.FromMilliseconds(1000));
-//                for (int i = frames.Count - 1; i >= 0; i -= 10)
+//                for (int i = frames.Count - 1; i >= 0; i -= 14)
 //                    gifEncoder.AddFrame(frames[i], TimeSpan.FromMilliseconds(10));
-//                for (int i = 0; i < frames.Count; i++)
+//                for (int i = 0; i < frames.Count; i += 3)
 //                    gifEncoder.AddFrame(frames[i], TimeSpan.FromMilliseconds(10));
 //            }
 //            using (MagickImageCollection collection = new MagickImageCollection())
